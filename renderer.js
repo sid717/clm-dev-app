@@ -30,12 +30,20 @@ window.addEventListener('DOMContentLoaded', async () => {
     addTicketEmpty.addEventListener('click', showPopup);
     closePopup.addEventListener('click', hidePopup);
     addManual.addEventListener("click", showManual);
-    addTicketSidebar.addEventListener('click', showPopup);
+    addTicketSidebar.addEventListener('click', () => {
+        selectedTicketIndex = null;
+        showPopup(true);
+    });
     document.getElementById('cancel-ticket').addEventListener('click', hidePopup);
     // addAuto.onclick = autoAdd();
 });
 
-function showPopup() {
+function showPopup(isnew = false) {
+    if (isnew) {
+        selectedTicketIndex = null;
+        selectedTicketId = null;
+        clearForm(); // optional
+    }
     ticketFormPopup.style.display = 'flex';
     document.getElementById('jira-link').focus();
     addManual.addEventListener("click", showManual);
