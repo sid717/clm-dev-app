@@ -23,6 +23,7 @@ body {
 
 .sidebar-header {
     padding: 10px;
+    display: flex;
     border-bottom: 1px solid #3c3c3c;
 }
 
@@ -381,6 +382,7 @@ body {
     border-radius: 4px;
     transition: all 0.2s ease;
     display: none;
+    margin-left: auto;
 }
 
 .add-ticket-sidebar:hover {

@@ -16,6 +16,8 @@ const ticketIdInput = document.getElementById('ticket-id');
 const ticketName = document.getElementById('ticket-name');
 const veevaBinderLink = document.getElementById('veeva-binder-link');
 const veevaPMLink = document.getElementById('veeva-pm-link');
+const folderPath = document.getElementById('folder-path');
+const folderButton = document.getElementById('select-folder');
 
 let tickets = [];
 let selectedTicketIndex = null;
@@ -57,6 +59,14 @@ function showManual() {
     addManual.addEventListener('click', manualAdd);
 }
 
+folderButton.addEventListener("click", async () => {
+    const folderPath = await window.electronAPI.selectFolder();
+    if (folderPath) {
+      document.getElementById("folder-path").value = folderPath;
+    }
+  });
+  
+
 function hideManual() {
     document.querySelectorAll(".manual-fields").forEach(el => {
         el.classList.add("hidden");
@@ -75,7 +85,7 @@ function updateView() {
         addTicketSidebar.style.display = 'none';
     } else {
         emptyState.style.display = 'none';
-        addTicketSidebar.style.display = 'flex';
+        addTicketSidebar.style.display = 'inline-block';
     }
 }
 
@@ -86,8 +96,8 @@ async function manualAdd() {
         name: ticketName.value.trim(),
         veevaPMLink: veevaPMLink.value.trim(),
         veevaBinderLink: veevaBinderLink.value.trim(),
+        folderPath: folderPath.value.trim(),
         manual: true,
-        folderPath: null,
     };
 
     if(!ticket.id || !ticket.name) {
@@ -126,6 +136,7 @@ function editTicket(index) {
     jiraLink.value = currticket.jiraLink || '';
     veevaPMLink.value = currticket.veevaPMLink || '';
     veevaBinderLink.value = currticket.veevaBinderLink || '';
+    folderPath.value = currticket.folderPath || '';
     selectedTicketIndex = index;
     showPopup();
     if (currticket.manual === true) {

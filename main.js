@@ -40,3 +40,11 @@ ipcMain.handle("tickets:save", (event, incomingTickets) => {
 ipcMain.handle('get-app-path', async () => {
     return app.getPath('userData')
 })
+
+ipcMain.handle('tickets:select-folder', async () => {
+    const result = await dialog.showOpenDialog({
+        properties: ["openDirectory"]
+    });
+    if (result.canceled || result.filePaths.length === 0) return null;
+    return result.filePaths[0];
+});
