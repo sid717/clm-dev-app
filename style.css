@@ -62,6 +62,81 @@ body {
     overflow-y: auto;
 }
 
+#ticket-dashboard {
+    padding: 20px;
+    background-color: #1a1a1a;
+    color: #ffffff;
+  }
+  
+  .dashboard-section {
+    margin-bottom: 16px;
+    border-bottom: 1px solid #3c3c3c;
+    padding-bottom: 10px;
+  }
+  
+  .dashboard-section strong {
+    color: #cccccc;
+    font-weight: 500;
+    margin-right: 8px;
+  }
+  
+  #ticket-dashboard a {
+    color: #0098ff;
+    text-decoration: none;
+    font-size: 0.9em;
+  }
+  
+  #ticket-dashboard a:hover {
+    text-decoration: underline;
+  }
+  
+  #dashboard-folder {
+    color: #cccccc;
+    font-size: 0.9em;
+    font-family: monospace;
+  }
+  
+
+.file-list {
+    padding: 10px;
+    background-color: #2a2d2e;
+    border: 1px solid #3c3c3c;
+    border-radius: 6px;
+    max-height: 200px;
+    overflow-y: auto;
+    font-family: monospace;
+    color: #cccccc;
+  }
+  
+  .file-list-item {
+    padding: 6px 10px;
+    border-bottom: 1px solid #3c3c3c;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .file-list-item:hover {
+    background-color: #37373d;
+    color: #ffffff;
+  }
+  
+  #open-folder {
+    background-color: #3c3c3c;
+    border: none;
+    color: #cccccc;
+    padding: 6px 10px;
+    margin-left: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  #open-folder:hover {
+    background-color: #4c4c4c;
+    color: #ffffff;
+  }
+  
+
 #ticket-form {
     margin-bottom: 25px;
 }

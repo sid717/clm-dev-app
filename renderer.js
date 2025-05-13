@@ -114,6 +114,9 @@ async function manualAdd() {
     await window.electronAPI.saveTickets(tickets);
     renderTicketList();
     hidePopup();
+    if (selectedTicketIndex !== null) {
+        highlightTicket(selectedTicketIndex);
+      }
     updateView();
 }
 
@@ -242,7 +245,68 @@ function renderTicketList() {
 
 
 function highlightTicket(index) {
-    document.querySelectorAll('#tickets li').forEach((el,i) => 
-    el.classList.toggle('active', i === index));
     selectedTicketIndex = index;
+    const ticket = tickets[index];
+  
+    // Show dashboard
+    document.getElementById("ticket-dashboard").classList.remove("hidden");
+    emptyState.style.display = "none";
+  
+    // Fill in values
+    document.getElementById("dashboard-title").textContent = ticket.name || "(Untitled)";
+    document.getElementById("dashboard-id").textContent = ticket.id || "";
+    document.getElementById("dashboard-jira").href = ticket.jiraLink || "#";
+    document.getElementById("dashboard-pm").href = ticket.veevaPMLink || "#";
+    document.getElementById("dashboard-binder").href = ticket.veevaBinderLink || "#";
+    document.getElementById("dashboard-folder").textContent = ticket.folderPath || "(none)";
+    document.getElementById("open-folder").onclick = () => {
+      if (ticket.folderPath) {
+        window.electronAPI.openFolder(ticket.folderPath);
+      }
+    };
+  
+    // Highlight selected
+    document.querySelectorAll("#tickets li").forEach((el, i) => {
+      el.classList.toggle("active", i === index);
+    });
+    const fileListContainer = document.getElementById("file-list");
+fileListContainer.innerHTML = "";
+
+if (ticket.folderPath) {
+  window.electronAPI.getFolderContents(ticket.folderPath).then(files => {
+    if (!files.length) {
+      fileListContainer.textContent = "(Empty folder)";
+      return;
+    }
+
+    files.forEach(file => {
+        const el = document.createElement("div");
+        el.classList.add("file-list-item");
+      
+        let icon = "🧾"; // default
+      
+        if (file.isDir) {
+          icon = "📁";
+        } else if (file.name.toLowerCase().endsWith(".html")) {
+          icon = "🌐";
+        } else if (file.name.toLowerCase().endsWith(".pdf")) {
+          icon = "📄";
+        } else if (file.name.toLowerCase().endsWith(".docx") || file.name.toLowerCase().endsWith(".doc")) {
+          icon = "📑";
+        }
+      
+        el.textContent = `${icon} ${file.name}`;
+        el.onclick = () => {
+          window.electronAPI.openPath(file.fullPath);
+        };
+      
+        fileListContainer.appendChild(el);
+      });
+      
+  });
+} else {
+  fileListContainer.textContent = "(No folder selected)";
 }
+
+  }
+  

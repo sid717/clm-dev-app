@@ -48,3 +48,27 @@ ipcMain.handle('tickets:select-folder', async () => {
     if (result.canceled || result.filePaths.length === 0) return null;
     return result.filePaths[0];
 });
+
+ipcMain.handle("tickets:open-path", async (_, fullPath) => {
+    const { shell } = require("electron");
+    return await shell.openPath(fullPath);
+  });
+
+ipcMain.handle("tickets:get-folder-contents", async (_, folderPath) => {
+    try {
+        const files = fs.readdirSync(folderPath);
+        return files.map(file => {
+          const fullPath = path.join(folderPath, file);
+          const isDir = fs.statSync(fullPath).isDirectory();
+          return {
+            name: file,
+            isDir,
+            fullPath
+          };
+        });
+      } catch (err) {
+        console.error("Error reading folder:", err);
+        return [];
+      }
+});
+  
