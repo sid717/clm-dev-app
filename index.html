@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Manager</title>
+    <link rel = "stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Active tickets</h2>
+                <button id = "add-ticket-sidebar" class="add-ticket-sidebar">+</button>
+            </div>
+            <div class="ticket-list-container">
+                <ul id="tickets"></ul>
+            </div>
+            <div class="sidebar-content">
+                <div class="sidebar-item">
+                    <span class="icon">📋</span>
+                    <span>Active tickets</span>
+                </div>
+                <div class="sidebar-item">
+                    <span class="icon">🗂️</span>
+                    <span>Archive</span>
+                </div>
+            </div>
+        </div>
+    <div class="main-content">
+        <div id="empty-state" class="empty-state">
+            <button id="add-ticket-empty" class="add-ticket-button">
+                <span class="plus-icon">+</span>
+            </button>
+            <p>No tickets yet. Click to add a ticket!</p>
+        </div>
+    </div>
+    </div>
+    <div id="ticket-form-popup" class = "popup">
+        <div class="popup-content">
+            <div class="popup-header">
+            <h2>Add a new ticket</h2>
+            <button id="close-popup" class="close-button">x</button>
+        </div>
+        <div class="popup-body">
+            <div class="form-group">
+                <label for="jira-link">JIRA Link</label>
+                <input type="url" id="jira-link" placeholder="Enter JIRA ticket link">
+            </div>
+            <div class="form-group manual-fields hidden">
+                <label for="ticket-id">Ticket ID</label>
+                <input type="text" id="ticket-id" placeholder="Enter Ticket ID">
+              </div>
+              <div class="form-group manual-fields hidden">
+                <label for="ticket-name">Ticket Name</label>
+                <input type="text" id="ticket-name" placeholder="Enter Ticket Name">
+              </div>
+              <div class="form-group manual-fields hidden">
+                <label for="veeva-pm-link">Veeva PM Link</label>
+                <input type="url" id="veeva-pm-link" placeholder="Enter Ticket Name">
+              </div>
+              <div class="form-group manual-fields hidden">
+                <label for="veeva-binder-link">Veeva Binder Link</label>
+                <input type="url" id="veeva-binder-link" placeholder="Enter Ticket Name">
+              </div>
+              <!-- <div class="form-group manual-fields hidden">
+                <label for="">Ticket Name</label>
+                <input type="text" id="manual-field-2" placeholder="Enter Ticket Name">
+              </div> -->
+            <div class="form-buttons" id="form-buttons">
+                <button id="add-ticket-auto" class="primary-button">Fetch ticket</button>
+                <button id="add-ticket-manual" class="primary-button">Enter manually</button>
+                <button id="cancel-ticket" class="cancel-button">Cancel</button>
+            </div>
+        </div>
+        </div>
+    </div>
+    <div id = "context-menu" class = "context-menu">
+        <div class="context-menu-item" id="edit-ticket">
+            <span class="icon">✏️</span>
+            <span>Edit</span>
+        </div>
+        <div class="context-menu-item" id="delete-ticket">
+            <span class="icon">🗑️</span>
+            <span>Delete</span>
+        </div>
+    </div>
+    <script src="renderer.js"></script>
+</body>
+</html>
