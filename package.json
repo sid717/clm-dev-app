@@ -11,6 +11,10 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@electron/rebuild": "^4.0.1",
     "electron": "^36.2.0"
+  },
+  "dependencies": {
+    "puppeteer": "^24.8.2"
   }
 }

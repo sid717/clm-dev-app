@@ -1,4 +1,4 @@
-const {app, BrowserWindow, ipcMain, dialog} = require('electron')
+const {app, BrowserWindow, ipcMain, dialog, shell} = require('electron')
 const path = require('path')
 const fs = require('fs')
 
@@ -53,6 +53,10 @@ ipcMain.handle("tickets:open-path", async (_, fullPath) => {
     const { shell } = require("electron");
     return await shell.openPath(fullPath);
   });
+
+ipcMain.handle('tickets:open-link', async (event, url) => {
+await shell.openExternal(url);
+});
 
 ipcMain.handle("tickets:get-folder-contents", async (_, folderPath) => {
     try {

@@ -162,7 +162,7 @@ async function deleteTicket(index) {
         renderTicketList();
         updateView();
         
-        window.electronAPI.saveTickets(tickets)  // ✅ Persist change
+        window.electronAPI.saveTickets(tickets)
     .catch((err) => {
       console.error("Failed to save after deletion", err);
     });
@@ -197,6 +197,10 @@ function createLinkIcon(url, title, iconPath) {
     img.classList.add("link-icon");
 
     a.appendChild(img);
+    a.onclick = (e) => {
+      e.preventDefault();
+      window.electronAPI.openLink(url);
+    };
     return a;
 }
 
@@ -232,7 +236,7 @@ function renderTicketList() {
         }
 
         if (ticket.veevaBinderLink) {
-            const binderIcon = createLinkIcon(ticket.veevaBinderLink, "Veeva Binder", "assets/icons/veeva-icon.png");
+            const binderIcon = createLinkIcon(ticket.veevaBinderLink, "Veeva Binder", "assets/icons/veeva-binder-icon.png");
             icons.appendChild(binderIcon);
         }
 
@@ -305,7 +309,7 @@ if (ticket.folderPath) {
       
         el.textContent = `${icon} ${file.name}`;
         el.onclick = () => {
-          window.electronAPI.openPath(file.fullPath);
+          window.electronAPI.openFolder(file.fullPath);
         };
       
         fileListContainer.appendChild(el);

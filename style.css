@@ -1,3 +1,22 @@
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #3c3c3c;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #4c4c4c;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #1a1a1a;
+  border-radius: 10px;
+}
+
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -174,10 +193,16 @@ body {
     height: 20px;
     opacity: 0.7;
     transition: opacity 0.2s;
+    padding: 1px 2px;
+    border-radius: 4px
 }
 
 .link-icon:hover {
     opacity: 1;
+    transform: scale(1.1);
+    background-color: #3c3c3c;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+    border-radius: 10%;
 }
 
 
@@ -278,10 +303,11 @@ body {
 }
 
 #tickets li {
-    padding: 8px 10px;
-    margin: 2px 0;
+    padding: 6px 10px;
+    margin: 5px 0;
     border-radius: 4px;
     cursor: pointer;
+    margin-top: auto;
     color: #cccccc;
     font-size: 0.9em;
     transition: all 0.2s ease;
