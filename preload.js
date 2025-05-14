@@ -1,10 +1,14 @@
 const { contextBridge, ipcRenderer } = require("electron");
+const QRCode = require('qrcode');
 
 contextBridge.exposeInMainWorld("electronAPI", {
-  loadTickets: () => ipcRenderer.invoke("tickets:load"),
-  saveTickets: (tickets) => ipcRenderer.invoke("tickets:save", tickets),
-  getFolderContents: (folderPath) => ipcRenderer.invoke("tickets:get-folder-contents", folderPath),
-  selectFolder: () => ipcRenderer.invoke("tickets:select-folder"),
-  openFolder: (fullPath) => ipcRenderer.invoke("tickets:open-path", fullPath),
-  openLink: (url) => ipcRenderer.invoke("tickets:open-link", url),
+loadTickets: () => ipcRenderer.invoke("tickets:load"),
+saveTickets: (tickets) => ipcRenderer.invoke("tickets:save", tickets),
+getFolderContents: (folderPath) => ipcRenderer.invoke("tickets:get-folder-contents", folderPath),
+selectFolder: () => ipcRenderer.invoke("tickets:select-folder"),
+openFolder: (fullPath) => ipcRenderer.invoke("tickets:open-path", fullPath),
+openLink: (url) => ipcRenderer.invoke("tickets:open-link", url),
+getTicketPreviewUrl: (ticketId) => ipcRenderer.invoke('get-ticket-preview-url', ticketId), // <-- FIXED
+registerTicketFolders: (tickets) => ipcRenderer.invoke('register-ticket-folders', tickets), // <-- FIXED
+generateQrDataUrl: (text) => QRCode.toDataURL(text)
 });

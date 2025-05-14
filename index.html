@@ -1,131 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ticket Manager</title>
-    <link rel = "stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ticket Manager</title>
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <div class="container">
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <h2>Active tickets <button id = "add-ticket-sidebar" class="add-ticket-sidebar">+</button></h2>
-            </div>
-            <div class="ticket-list-container">
-                <ul id="tickets"></ul>
-            </div>
-            <div class="sidebar-content">
-                <div class="sidebar-item">
-                    <span class="icon">📋</span>
-                    <span>Active tickets</span>
-                </div>
-                <div class="sidebar-item">
-                    <span class="icon">🗂️</span>
-                    <span>Archive</span>
-                </div>
-            </div>
+  <div class="container">
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h2>Active tickets <button id="add-ticket-sidebar" class="add-ticket-sidebar">+</button></h2>
+      </div>
+      <div class="ticket-list-container">
+        <ul id="tickets"></ul>
+      </div>
+      <div class="sidebar-content">
+        <div class="sidebar-item">
+          <span class="icon">📋</span>
+          <span>Active tickets</span>
         </div>
+        <div class="sidebar-item">
+          <span class="icon">🗂️</span>
+          <span>Archive</span>
+        </div>
+      </div>
+    </div>
     <div class="main-content">
-        <div id="empty-state" class="empty-state">
-            <button id="add-ticket-empty" class="add-ticket-button">
-                <span class="plus-icon">+</span>
-            </button>
-            <p>No tickets yet. Click to add a ticket!</p>
+      <div id="tab-bar" class="tab-bar hidden"></div>
+      <div id="tab-content"></div>
+      <div id="empty-state" class="empty-state">
+        <button id="add-ticket-empty" class="add-ticket-button">
+          <span class="plus-icon">+</span>
+        </button>
+        <p>No tickets yet. Click to add a ticket!</p>
+      </div>
+      <div id="ticket-dashboard" class="hidden">
+        <h2 id="dashboard-title"></h2>
+        <div class="dashboard-section">
+          <strong>Folder Contents:</strong>
+          <div id="file-list" class="file-list"></div>
         </div>
-        <div id="ticket-dashboard" class="hidden">
-            <h2 id="dashboard-title"></h2>
-            <div class="dashboard-section">
-                <strong>Folder Contents:</strong>
-                <div id="file-list" class="file-list"></div>
-              </div>
-              
-          
-            <div class="dashboard-section">
-              <strong>ID:</strong> <span id="dashboard-id"></span>
-            </div>
-          
-            <div class="dashboard-section">
-              <strong>JIRA:</strong>
-              <a id="dashboard-jira" href="#" target="_blank">Open</a>
-            </div>
-          
-            <div class="dashboard-section">
-              <strong>Veeva PM:</strong>
-              <a id="dashboard-pm" href="#" target="_blank">Open</a>
-            </div>
-          
-            <div class="dashboard-section">
-              <strong>Veeva Binder:</strong>
-              <a id="dashboard-binder" href="#" target="_blank">Open</a>
-            </div>
-          
-            <div class="dashboard-section">
-              <strong>Folder Path:</strong>
-              <span id="dashboard-folder"></span>
-              <button id="open-folder">📁 Open</button>
-            </div>
+
+        <div class="dashboard-section">
+          <strong>Folder Path:</strong>
+          <span id="dashboard-folder"></span>
+          <button id="open-folder">📁 Open</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div id="ticket-form-popup" class="popup">
+    <div class="popup-content">
+      <div class="popup-header">
+        <h2>Add a new ticket</h2>
+        <button id="close-popup" class="close-button">x</button>
+      </div>
+      <div class="popup-body">
+        <div class="form-group">
+          <label for="jira-link">JIRA Link</label>
+          <input type="url" id="jira-link" placeholder="Enter JIRA ticket link">
+        </div>
+        <div class="form-group manual-fields hidden">
+          <label for="ticket-id">Ticket ID</label>
+          <input type="text" id="ticket-id" placeholder="Enter Ticket ID">
+        </div>
+        <div class="form-group manual-fields hidden">
+          <label for="ticket-name">Ticket Name</label>
+          <input type="text" id="ticket-name" placeholder="Enter Ticket Name">
+        </div>
+        <div class="form-group manual-fields hidden">
+          <label for="veeva-pm-link">Veeva PM Link</label>
+          <input type="url" id="veeva-pm-link" placeholder="Enter Ticket Name">
+        </div>
+        <div class="form-group manual-fields hidden">
+          <label for="veeva-binder-link">Veeva Binder Link</label>
+          <input type="url" id="veeva-binder-link" placeholder="Enter Ticket Name">
+        </div>
+        <div class="form-group manual-fields hidden">
+          <label for="folder-path">Ticket Folder</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="folder-path" placeholder="No folder selected" readonly>
+            <button id="select-folder" class="primary-button">Browse</button>
           </div>
-          
-    </div>
-    </div>
-    <div id="ticket-form-popup" class = "popup">
-        <div class="popup-content">
-            <div class="popup-header">
-            <h2>Add a new ticket</h2>
-            <button id="close-popup" class="close-button">x</button>
         </div>
-        <div class="popup-body">
-            <div class="form-group">
-                <label for="jira-link">JIRA Link</label>
-                <input type="url" id="jira-link" placeholder="Enter JIRA ticket link">
-            </div>
-            <div class="form-group manual-fields hidden">
-                <label for="ticket-id">Ticket ID</label>
-                <input type="text" id="ticket-id" placeholder="Enter Ticket ID">
-              </div>
-              <div class="form-group manual-fields hidden">
-                <label for="ticket-name">Ticket Name</label>
-                <input type="text" id="ticket-name" placeholder="Enter Ticket Name">
-              </div>
-              <div class="form-group manual-fields hidden">
-                <label for="veeva-pm-link">Veeva PM Link</label>
-                <input type="url" id="veeva-pm-link" placeholder="Enter Ticket Name">
-              </div>
-              <div class="form-group manual-fields hidden">
-                <label for="veeva-binder-link">Veeva Binder Link</label>
-                <input type="url" id="veeva-binder-link" placeholder="Enter Ticket Name">
-              </div>
-              <div class="form-group manual-fields hidden">
-                <label for="folder-path">Ticket Folder</label>
-                <div style="display: flex; gap: 8px;">
-                  <input type="text" id="folder-path" placeholder="No folder selected" readonly>
-                  <button id="select-folder" class="primary-button">Browse</button>
-                </div>
-              </div>
-              
-              <!-- <div class="form-group manual-fields hidden">
+
+        <!-- <div class="form-group manual-fields hidden">
                 <label for="">Ticket Name</label>
                 <input type="text" id="manual-field-2" placeholder="Enter Ticket Name">
               </div> -->
-            <div class="form-buttons" id="form-buttons">
-                <button id="add-ticket-auto" class="primary-button">Fetch ticket</button>
-                <button id="add-ticket-manual" class="primary-button">Enter manually</button>
-                <button id="cancel-ticket" class="cancel-button">Cancel</button>
-            </div>
+        <div class="form-buttons" id="form-buttons">
+          <button id="add-ticket-auto" class="primary-button">Fetch ticket</button>
+          <button id="add-ticket-manual" class="primary-button">Enter manually</button>
+          <button id="cancel-ticket" class="cancel-button">Cancel</button>
         </div>
-        </div>
+      </div>
     </div>
-    <div id = "context-menu" class = "context-menu">
-        <div class="context-menu-item" id="edit-ticket">
-            <span class="icon">✏️</span>
-            <span>Edit</span>
-        </div>
-        <div class="context-menu-item" id="delete-ticket">
-            <span class="icon">🗑️</span>
-            <span>Delete</span>
-        </div>
+  </div>
+  <div id="context-menu" class="context-menu">
+    <div class="context-menu-item" id="edit-ticket">
+      <span class="icon">✏️</span>
+      <span>Edit</span>
     </div>
-    <script src="renderer.js"></script>
+    <div class="context-menu-item" id="delete-ticket">
+      <span class="icon">🗑️</span>
+      <span>Delete</span>
+    </div>
+  </div>
+  <div id="thumbnail-modal" class="thumbnail-modal hidden">
+    <div class="carousel-backdrop"></div>
+    <div class="carousel-content">
+      <button class="carousel-close">&times;</button>
+      <button class="carousel-arrow left">&#8592;</button>
+      <div class="carousel-images"></div>
+      <button class="carousel-arrow right">&#8594;</button>
+    </div>
+  </div>
+  <script src="renderer.js"></script>
 </body>
+
 </html>

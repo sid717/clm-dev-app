@@ -15,6 +15,9 @@
     "electron": "^36.2.0"
   },
   "dependencies": {
-    "puppeteer": "^24.8.2"
+    "express": "^4.21.2",
+    "puppeteer": "^24.8.2",
+    "qrcode": "^1.5.4",
+    "serve-static": "^1.16.2"
   }
 }
