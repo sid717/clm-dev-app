@@ -82,22 +82,34 @@ function getLocalIp() {
 
 ipcMain.handle('preview-url', (event, url) => {
     const win = new BrowserWindow({
-        width: 1366,  // iPad Pro 12.9" landscape
+        width: 1366,
         height: 1024,
         webPreferences: {
             nodeIntegration: false,
-            contextIsolation: true
+            contextIsolation: true,
         },
-        // Optional: Remove the window frame for a more device-like experience
-        // frame: false,
     });
 
-    // Optional: Set an iPad User-Agent for better emulation
     win.webContents.setUserAgent(
         "Mozilla/5.0 (iPad; CPU OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1"
     );
 
     win.loadURL(url);
+
+    win.webContents.on('did-finish-load', () => {
+        win.webContents.executeJavaScript(`
+        Object.defineProperty(window, 'devicePixelRatio', {
+          get: function() { return 2; }
+        });
+        let meta = document.querySelector('meta[name="viewport"]');
+        if (!meta) {
+          meta = document.createElement('meta');
+          meta.name = "viewport";
+          document.head.appendChild(meta);
+        }
+        meta.content = "width=1366, initial-scale=1";
+      `);
+    });
 });
 
 ipcMain.handle('get-ticket-preview-url', async (event, ticketId) => {
