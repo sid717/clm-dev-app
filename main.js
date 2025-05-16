@@ -80,6 +80,26 @@ function getLocalIp() {
     return '127.0.0.1';
 }
 
+ipcMain.handle('preview-url', (event, url) => {
+    const win = new BrowserWindow({
+        width: 1366,  // iPad Pro 12.9" landscape
+        height: 1024,
+        webPreferences: {
+            nodeIntegration: false,
+            contextIsolation: true
+        },
+        // Optional: Remove the window frame for a more device-like experience
+        // frame: false,
+    });
+
+    // Optional: Set an iPad User-Agent for better emulation
+    win.webContents.setUserAgent(
+        "Mozilla/5.0 (iPad; CPU OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1"
+    );
+
+    win.loadURL(url);
+});
+
 ipcMain.handle('get-ticket-preview-url', async (event, ticketId) => {
     const ip = getLocalIp();
 
@@ -125,8 +145,20 @@ ipcMain.handle("tickets:open-path", async (_, fullPath) => {
     return await shell.openPath(fullPath);
 });
 
+// ipcMain.handle('tickets:open-link', async (event, url) => {
+//     await shell.openExternal(url);
+// });
+
 ipcMain.handle('tickets:open-link', async (event, url) => {
-    await shell.openExternal(url);
+    try {
+        if (!url || typeof url !== "string" || !/^https?:\/\//.test(url)) {
+            throw new Error("Invalid URL");
+        }
+        await shell.openExternal(url);
+    } catch (err) {
+        console.error("Error opening link:", err);
+        throw err;
+    }
 });
 
 ipcMain.handle("tickets:get-folder-contents", async (_, folderPath) => {

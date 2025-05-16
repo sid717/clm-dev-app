@@ -10,5 +10,6 @@ openFolder: (fullPath) => ipcRenderer.invoke("tickets:open-path", fullPath),
 openLink: (url) => ipcRenderer.invoke("tickets:open-link", url),
 getTicketPreviewUrl: (ticketId) => ipcRenderer.invoke('get-ticket-preview-url', ticketId), // <-- FIXED
 registerTicketFolders: (tickets) => ipcRenderer.invoke('register-ticket-folders', tickets), // <-- FIXED
-generateQrDataUrl: (text) => QRCode.toDataURL(text)
+generateQrDataUrl: (text) => QRCode.toDataURL(text),
+previewUrl: (url) => ipcRenderer.invoke('preview-url', url)
 });

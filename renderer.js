@@ -287,7 +287,38 @@ function renderTicketList() {
 
   emptyState.style.display = tickets.length > 0 ? 'none' : 'flex';
 }
-
+function isValidHttpUrl(str) {
+    try {
+      const url = new URL(str);
+      return url.protocol === "http:" || url.protocol === "https:";
+    } catch (_) {
+      return false;
+    }
+  }
+  
+  // Usage in createLinkIcon
+  function createLinkIcon(url, title, iconPath) {
+    const a = document.createElement("a");
+    a.href = url;
+    a.target = "_blank";
+    a.title = `Open ${title}`;
+  
+    const img = document.createElement("img");
+    img.src = iconPath;
+    img.alt = title;
+    img.classList.add("link-icon");
+  
+    a.appendChild(img);
+    a.onclick = (e) => {
+      e.preventDefault();
+      if (isValidHttpUrl(url)) {
+        window.electronAPI.openLink(url);
+      } else {
+        alert("Invalid or empty link. Please enter a valid URL.");
+      }
+    };
+    return a;
+  }
 
 function openTicketTab(index) {
   selectedTicketIndex = index;
@@ -572,7 +603,8 @@ async function showQrForTicket(ticket) {
     <div class="qr-backdrop"></div>
     <div class="qr-content">
       <img src="${qrDataUrl}" alt="QR Code" />
-      <p>Scan to open:<br><a href="${url}" target="_blank">${url}</a></p>
+      <p>Scan to open:<br><br><a id="preview-link" href="${url}" target="_blank">${url}</a></p>
+      <script> document.getElementById('preview-link').addEventListener('click', window.electronAPI.previewUrl(url)); </script>
       <button class="qr-close primary-button">Close</button>
     </div>
   `;
