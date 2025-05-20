@@ -2,6 +2,31 @@
     width: 10px;
     height: 10px;
 }
+a {
+    color: var(--vsc-accent);
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+
+:root {
+    /* VS Code Core Colors */
+    --vsc-bg: #1e1e1e;
+    --vsc-sidebar-bg: #23272e;
+    --vsc-panel-bg: #252526;
+    --vsc-border: #333;
+    --vsc-accent: #007acc;
+    --vsc-accent-light: #3794ff;
+    --vsc-text: #d4d4d4;
+    --vsc-secondary-text: #858585;
+    --vsc-selection: #264f78;
+    --vsc-hover: #2a2d2e;
+    --vsc-error: #f48771;
+    --vsc-success: #89d185;
+    --vsc-warning: #cca700;
+    --vsc-font: 'Segoe UI', 'Liberation Sans', 'DejaVu Sans', Arial, sans-serif;
+  }
 
 ::-webkit-scrollbar-thumb {
     background-color: #3c3c3c;
@@ -17,15 +42,14 @@
     border-radius: 10px;
 }
 
-body {
-    font-family: Arial, sans-serif;
+html, body {
+    background: var(--vsc-bg);
+    color: var(--vsc-text);
+    font-family: var(--vsc-font);
     margin: 0;
     padding: 0;
-    background-color: #1a1a1a;
-    color: #ffffff;
-    height: 100vh;
-    overflow: hidden;
-}
+    height: 100%;
+  }
 
 .container {
     display: flex;
