@@ -222,8 +222,9 @@ html, body {
     border-radius: 6px;
     max-height: 200px;
     overflow-y: auto;
-    font-family: monospace;
     color: #cccccc;
+    font-family: var(--vsc-font);
+    font-size: 1em;
 }
 
 .file-list-item {
@@ -302,6 +303,13 @@ html, body {
     background-color: #3c3c3c;
     box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
     border-radius: 10%;
+}
+
+.binder-icon {
+  width: 15.5px;
+  height: 15.5px;
+  object-fit: contain;
+  vertical-align: middle;
 }
 
 
@@ -453,6 +461,35 @@ html, body {
     font-size: 0.9em;
 }
 
+.context-menu-item.has-submenu {
+  position: relative;
+}
+
+.context-menu-item .submenu {
+  display: none;
+  position: absolute;
+  left: 100%;
+  top: 0;
+  min-width: 160px;
+  background: #fff;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  z-index: 100;
+}
+
+.context-menu-item.has-submenu:hover .submenu {
+  display: block;
+}
+
+.submenu-item {
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.submenu-item:hover {
+  background: #f0f0f0;
+}
+
 .popup {
     position: fixed;
     top: 0;
@@ -467,6 +504,8 @@ html, body {
 }
 
 .popup-content {
+    overflow-y: auto;
+    max-height: 80vh;
     background-color: #252526;
     border-radius: 8px;
     width: 80%;

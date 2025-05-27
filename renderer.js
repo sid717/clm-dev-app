@@ -8,21 +8,28 @@ const addManual = document.getElementById('add-ticket-manual');
 const addAuto = document.getElementById('add-ticket-auto');
 const contextMenu = document.getElementById('context-menu');
 const editTicketBtn = document.getElementById('edit-ticket');
+const archiveTicketBtn = document.getElementById('archive-ticket');
+const generateMessageBtn = document.getElementById('generate-message');
 const deleteTicketBtn = document.getElementById('delete-ticket');
 const tabBar = document.getElementById('tab-bar');
 const tabContent = document.getElementById('tab-content');
+const metadataCheckLink = "https://gsk-contentlab.veevavault.com/ui/#reporting/viewer/0RP0000000QS001";
+const metadataCustomLink = "https://gsk-contentlab.veevavault.com/ui/#reporting/viewer/0RP0000000QS001?Binder.document_number__v%2C%2C%2CEQ=";
 
 let openTabs = [];
 let activeTabId = null;
 
-//inputs
 const jiraLink = document.getElementById('jira-link');
 const ticketIdInput = document.getElementById('ticket-id');
 const ticketName = document.getElementById('ticket-name');
 const veevaBinderLink = document.getElementById('veeva-binder-link');
+const veevaPMName = document.getElementById('veeva-pm-name');
+const veevaPMID = document.getElementById('veeva-pm-id');
+const veevaBinderID = document.getElementById('veeva-binder-id');
 const veevaPMLink = document.getElementById('veeva-pm-link');
 const folderPath = document.getElementById('folder-path');
 const folderButton = document.getElementById('select-folder');
+let manual = true;
 
 let tickets = [];
 let selectedTicketIndex = null;
@@ -41,8 +48,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     showPopup(true);
   });
   document.getElementById('cancel-ticket').addEventListener('click', hidePopup);
-  // addAuto.onclick = autoAdd();
 });
+
+
 
 function showPopup(isnew = false) {
   if (isnew) {
@@ -50,6 +58,7 @@ function showPopup(isnew = false) {
     selectedTicketId = null;
     clearForm(); // optional
   }
+  manual = false;
   ticketFormPopup.style.display = 'flex';
   document.getElementById('jira-link').focus();
   addManual.addEventListener("click", showManual);
@@ -67,6 +76,7 @@ function showManual() {
   document.querySelectorAll(".manual-fields").forEach(el => {
     el.classList.remove("hidden");
   });
+  manual = true;
 
   addAuto.style.display = 'none';
   addManual.textContent = 'Enter';
@@ -87,11 +97,24 @@ function hideManual() {
   });
   addAuto.style.display = 'flex';
   addManual.textContent = 'Enter manually';
+  manual = false;
 }
 
 function clearForm() {
   document.querySelectorAll("input").forEach(input => input.value = "");
 }
+
+ticketFormPopup.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    if (document.activeElement.id === 'jira-link' || manual === false) {
+      e.preventDefault();
+      autoAdd(jiraLink.value.trim());
+    } else if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA' || manual === true) {
+      e.preventDefault();
+      manualAdd();
+    }
+  }
+});
 
 function updateView() {
   if (tickets.length === 0) {
@@ -103,19 +126,81 @@ function updateView() {
   }
 }
 
+addAuto.addEventListener('click', async () => {
+  const jiraLink = document.getElementById('jira-link').value.trim();
+  if (jiraLink) {
+    await autoAdd(jiraLink);
+  }
+  else {
+    showToast("Please enter a JIRA link.");
+  }
+});
+async function getPmIdFromJira(jiraLink) {
+  try {
+    const response = await fetch(jiraLink, { credentials: "include" });
+    const html = await response.text();
+    const titleMatch = html.match(/<title>(.*?)<\/title>/i);
+    if (!titleMatch) return null;
+    const title = titleMatch[1];
+
+    // This regex matches PM- followed by letters/dashes/numbers, then an underscore or dash, then numbers
+    const pmIdMatch = title.match(/(PM-[A-Z0-9\-]+-\d+)/i);
+    return pmIdMatch ? pmIdMatch[1] : null;
+  } catch (err) {
+    console.error("Failed to fetch JIRA page:", err);
+    return null;
+  }
+}
+async function autoAdd(jiraLink) {
+  const match = jiraLink.match(/\/browse\/([A-Z0-9\-]+)/i);
+  const ticket = {
+    jiraLink: jiraLink,
+    id: match ? match[1] : "",
+    name: ticketName.value.trim(),
+    veevaPMLink: veevaPMLink.value.trim(),
+    veevaPMID: await getPmIdFromJira(jiraLink),
+    veevaBinderID: veevaBinderID.value.trim(),
+    veevaBinderLink: veevaBinderLink.value.trim(),
+    folderPath: folderPath.value.trim(),
+    manual: false,
+    archived: false,
+  }
+
+  if (!ticket.id) {
+    showToast("At least the ticket ID is required!");
+    return;
+  }
+
+  if (selectedTicketIndex !== null) {
+    tickets[selectedTicketIndex] = ticket;
+  } else {
+    tickets.push(ticket);
+  }
+
+  await window.electronAPI.saveTickets(tickets);
+  renderTicketList();
+  hidePopup();
+  if (selectedTicketIndex !== null) {
+    openTicketTab(selectedTicketIndex);
+  }
+  updateView();
+}
 async function manualAdd() {
   const ticket = {
     jiraLink: jiraLink.value.trim(),
     id: ticketIdInput.value.trim(),
     name: ticketName.value.trim(),
     veevaPMLink: veevaPMLink.value.trim(),
+    veevaPMID: veevaPMID.value.trim(),
+    veevaBinderID: veevaBinderID.value.trim(),
     veevaBinderLink: veevaBinderLink.value.trim(),
     folderPath: folderPath.value.trim(),
     manual: true,
+    archived: false,
   };
 
   if (!ticket.id || !ticket.name) {
-    alert("At least the ticket ID and name are required!");
+    showToast("At least the ticket ID and name are required!");
     return;
   }
 
@@ -146,6 +231,64 @@ function hideContextMenu() {
   contextMenu.style.display = 'none';
 }
 
+async function copyTextToClipboard(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    console.log('Text copied to clipboard');
+  } catch (err) {
+    console.error('Failed to copy text: ', err);
+  }
+}
+
+function generateMessage(index) {
+  const currticket = tickets[index];
+  const message = `Hello @! \n\nThe task has been completed and the ticket can be moved to [next process].\n
+  \nTicket Name: ${currticket.name}
+  \nTicket ID: ${currticket.id}
+  \nMCP Number: ${currticket.veevaPMID || 'N/A'}
+  \n\nThank you!\n\ncc @`;
+  copyTextToClipboard(message);
+  showToast('📝 Message copied to clipboard!');
+}
+
+generateMessageBtn.addEventListener('click', () => {
+  if (selectedTicketIndex !== -1) {
+    generateMessage(selectedTicketIndex);
+    hideContextMenu();
+  }
+});
+
+function showToast(message, duration = 3000) {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+
+  const toast = document.createElement('div');
+  toast.className = 'custom-toast';
+  toast.textContent = message;
+
+  // Optional: Add some basic styling
+  toast.style.background = '#252526';
+  toast.style.color = '#fff';
+  toast.style.padding = '12px 24px';
+  toast.style.marginTop = '8px';
+  toast.style.borderRadius = '4px';
+  toast.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+  toast.style.fontSize = '15px';
+  toast.style.opacity = '0';
+  toast.style.transition = 'opacity 0.2s';
+
+  container.appendChild(toast);
+
+  // Fade in
+  setTimeout(() => { toast.style.opacity = '1'; }, 10);
+
+  // Remove after duration
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    setTimeout(() => toast.remove(), 200);
+  }, duration);
+}
+
 function editTicket(index) {
   const currticket = tickets[index];
   ticketIdInput.value = currticket.id;
@@ -164,6 +307,7 @@ function editTicket(index) {
 async function deleteTicket(index) {
   if (confirm('Are you sure you want to delete this ticket?')) {
     console.log('deleting ticket at index: ', index);
+    showToast('🗑️ Ticket deleted successfully!');
     tickets.splice(index, 1);
     renderTicketList();
     updateView();
@@ -250,6 +394,7 @@ function renderTicketList() {
 
     if (ticket.veevaBinderLink) {
       const binderIcon = createLinkIcon(ticket.veevaBinderLink, "Veeva Binder", "assets/icons/veeva-binder-icon-1.png");
+      binderIcon.querySelector('img').classList.add('binder-icon');
       icons.appendChild(binderIcon);
     }
     if (ticket.folderPath) {
@@ -258,7 +403,7 @@ function renderTicketList() {
       qrLink.title = "Show QR code for this ticket";
 
       const qrImg = document.createElement("img");
-      qrImg.src = "assets/icons/qr-icon.png"; // use your actual path
+      qrImg.src = "assets/icons/qr-icon.png";
       qrImg.alt = "QR";
       qrImg.classList.add("link-icon");
 
@@ -288,37 +433,37 @@ function renderTicketList() {
   emptyState.style.display = tickets.length > 0 ? 'none' : 'flex';
 }
 function isValidHttpUrl(str) {
-    try {
-      const url = new URL(str);
-      return url.protocol === "http:" || url.protocol === "https:";
-    } catch (_) {
-      return false;
+  try {
+    const url = new URL(str);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch (_) {
+    return false;
+  }
+}
+
+// Usage in createLinkIcon
+function createLinkIcon(url, title, iconPath) {
+  const a = document.createElement("a");
+  a.href = url;
+  a.target = "_blank";
+  a.title = `Open ${title}`;
+
+  const img = document.createElement("img");
+  img.src = iconPath;
+  img.alt = title;
+  img.classList.add("link-icon");
+
+  a.appendChild(img);
+  a.onclick = (e) => {
+    e.preventDefault();
+    if (isValidHttpUrl(url)) {
+      window.electronAPI.openLink(url);
+    } else {
+      showToast("Invalid or empty link. Please enter a valid URL.");
     }
-  }
-  
-  // Usage in createLinkIcon
-  function createLinkIcon(url, title, iconPath) {
-    const a = document.createElement("a");
-    a.href = url;
-    a.target = "_blank";
-    a.title = `Open ${title}`;
-  
-    const img = document.createElement("img");
-    img.src = iconPath;
-    img.alt = title;
-    img.classList.add("link-icon");
-  
-    a.appendChild(img);
-    a.onclick = (e) => {
-      e.preventDefault();
-      if (isValidHttpUrl(url)) {
-        window.electronAPI.openLink(url);
-      } else {
-        alert("Invalid or empty link. Please enter a valid URL.");
-      }
-    };
-    return a;
-  }
+  };
+  return a;
+}
 
 function openTicketTab(index) {
   selectedTicketIndex = index;
@@ -337,29 +482,24 @@ function openTicketTab(index) {
     <div class="dashboard-tab-content" id="dashboard-overview">
         <h2 id="dashboard-title">${ticket.name || "(Untitled)"}</h2>
         <div class="dashboard-section">
-            <strong>Folder Contents:</strong>
+        <button class="primary-button" id="edit-files">✏️ Edit in VS Code</button>
+        <button id="metadata-check" class="primary-button">🔍 Check Metadata</button>
+        <button id="create-smart-eda" class="primary-button">🤖 Create Smart EDA</button>
+        <button id="Generate Thumbnails" class="primary-button"">📷 Generate Thumbnails</button>
+        <button id="Generate ZIPs" class="primary-button">🗂️ Generate ZIPs</button>
+        </div>
+        <div class="dashboard-section">
+            <strong>Folder Contents: <button id="open-folder">📁 Open</button><br><br></strong>
             <div id="file-list" class="file-list"></div>
         </div>
         <div class="dashboard-section">
             <strong>ID:</strong> <span id="dashboard-id">${ticket.id || ""}</span>
         </div>
-        <div class="dashboard-section">
-            <strong>JIRA:</strong>
-            <a id="dashboard-jira" href="${ticket.jiraLink || "#"}" target="_blank">Open</a>
-        </div>
-        <div class="dashboard-section">
-            <strong>Veeva PM:</strong>
-            <a id="dashboard-pm" href="${ticket.veevaPMLink || "#"}" target="_blank">Open</a>
-        </div>
-        <div class="dashboard-section">
-            <strong>Veeva Binder:</strong>
-            <a id="dashboard-binder" href="${ticket.veevaBinderLink || "#"}" target="_blank">Open</a>
-        </div>
-        <div class="dashboard-section">
+        <!--div class="dashboard-section">
             <strong>Folder Path:</strong>
             <span id="dashboard-folder">${ticket.folderPath || "(none)"}</span>
             <button id="open-folder">📁 Open</button>
-        </div>
+        </div-->
     </div>
     <div class="dashboard-tab-content hidden" id="dashboard-preview">
         <div id="preview-thumbnails" class="preview-thumbnails"></div>
@@ -381,9 +521,22 @@ function openTicketTab(index) {
       }
     };
   });
+  document.getElementById('edit-files').onclick = () => {
+    if (ticket.folderPath) {
+      window.electronAPI.openInVSCode(ticket.folderPath);
+    } else {
+      showToast("No folder path set for this ticket.");
+    }
+  };
+
+  const metadataCheckBtn = document.getElementById('metadata-check');
+  if (metadataCheckBtn) {
+    metadataCheckBtn.onclick = () => {
+      window.electronAPI.openLink(metadataCheckLink);
+    };
+  }
 
 
-  // document.getElementById("dashboard-folder").textContent = ticket.folderPath || "Edit ticket to set folder path";
   document.getElementById("open-folder").onclick = () => {
     if (ticket.folderPath) {
       window.electronAPI.openFolder(ticket.folderPath);
@@ -529,8 +682,21 @@ function openThumbnailCarousel(thumbnails, startIdx) {
     labelDiv.className = 'carousel-label';
     labelDiv.textContent = thumb.label;
 
+    const editBtn = document.createElement('button');
+    editBtn.className = 'primary-button';
+    editBtn.style.marginTop = '10px';
+    editBtn.textContent = '✏️ Edit in VS Code';
+    editBtn.onclick = () => {
+      const folderPath = thumb.fullPath.replace(/[/\\]thumb\.png$/i, '');
+      const indexPath = window.require ? window.require('path').join(folderPath, 'index.html') : folderPath + '/index.html';
+      window.electronAPI.openInVSCode(indexPath);
+    };
+
+
+
     wrapper.appendChild(img);
     wrapper.appendChild(labelDiv);
+    wrapper.appendChild(editBtn);
 
     imagesDiv.appendChild(wrapper);
   });
@@ -590,7 +756,7 @@ async function showQrForTicket(ticket) {
   try {
     console.log("QR requested for ticket:", ticket);
     if (!ticket.folderPath) {
-      alert("No folder set for this ticket.");
+      showToast("No folder set for this ticket.");
       return;
     }
     const url = await window.electronAPI.getTicketPreviewUrl(ticket.id);
@@ -603,7 +769,7 @@ async function showQrForTicket(ticket) {
     <div class="qr-backdrop"></div>
     <div class="qr-content">
       <img src="${qrDataUrl}" alt="QR Code" />
-      <p>Scan to open:<br><br><a id="preview-link" href="${url}" target="_blank">${url}</a></p>
+      <p>Scan to open:<br><a id="preview-link" href="${url}" target="_blank">${url}</a></p>
       <script> document.getElementById('preview-link').addEventListener('click', window.electronAPI.previewUrl(url)); </script>
       <button class="qr-close primary-button">Close</button>
     </div>
@@ -612,6 +778,6 @@ async function showQrForTicket(ticket) {
     qrModal.querySelector('.qr-close').onclick = () => qrModal.remove();
     qrModal.querySelector('.qr-backdrop').onclick = () => qrModal.remove();
   } catch (err) {
-    alert("Could not generate QR code: " + err.message);
+    showToast("Could not generate QR code: " + err.message);
   }
 }

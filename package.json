@@ -15,9 +15,13 @@
     "electron": "^36.2.0"
   },
   "dependencies": {
+    "@lexical/react": "^0.31.2",
     "express": "^4.21.2",
+    "lexical": "^0.31.2",
     "puppeteer": "^24.8.2",
     "qrcode": "^1.5.4",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
     "serve-static": "^1.16.2"
   }
 }

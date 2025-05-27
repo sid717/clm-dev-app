@@ -2,10 +2,12 @@ const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron')
 const path = require('path')
 const fs = require('fs')
 const os = require('os')
+const { exec } = require('child_process');
 const express = require('express');
 
 const staticApp = express();
 const STATIC_PORT = 3333;
+
 
 // This will map ticketId -> folderPath (absolute)
 let ticketFolders = {};
@@ -33,11 +35,9 @@ staticApp.listen(STATIC_PORT, () => {
     console.log(`Dynamic static server running on port ${STATIC_PORT}`);
 });
 
-
-
 const TICKET_STORE_PATH = path.join(app.getPath("userData"), "tickets.json");
 
-function loadTickets() {
+async function loadTickets() {
     try {
         const data = fs.readFileSync(TICKET_STORE_PATH, 'utf8');
         return JSON.parse(data)
@@ -80,6 +80,29 @@ function getLocalIp() {
     return '127.0.0.1';
 }
 
+// ipcMain.handle('open-folder-in-vscode', async (event, filePath) => {
+//   // filePath is expected to be the path to index.html
+//   const dir = path.dirname(filePath);
+//   const indexPath = path.join(dir, 'index.html');
+//   const cssPath = path.join(dir, 'css', 'local.css');
+//   let filesToOpen = [indexPath];
+
+//   if (fs.existsSync(cssPath)) {
+//     filesToOpen.push(cssPath);
+//   }
+
+//   // Open both files in a new VS Code window
+//   exec(`code --new-window "${filesToOpen.join('" "')}"`);
+// });
+
+ipcMain.handle('open-folder-in-vscode', async (event, filePath) => {
+  // filePath is expected to be the path to index.html or a file inside the folder
+  const dir = path.dirname(filePath);
+  // Open the folder in a new VS Code window
+  exec(`code --new-window "${dir}"`);
+});
+
+
 ipcMain.handle('preview-url', (event, url) => {
     const win = new BrowserWindow({
         width: 1366,
@@ -111,6 +134,15 @@ ipcMain.handle('preview-url', (event, url) => {
       `);
     });
 });
+
+ipcMain.handle("read-file", async (_, filePath) => {
+  return fs.readFileSync(filePath, "utf8");
+});
+ipcMain.handle("write-file", async (_, filePath, content) => {
+  fs.writeFileSync(filePath, content, "utf8");
+  return true;
+});
+
 
 ipcMain.handle('get-ticket-preview-url', async (event, ticketId) => {
     const ip = getLocalIp();

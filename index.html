@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ticket Manager</title>
@@ -58,7 +58,7 @@
     <div class="popup-content">
       <div class="popup-header">
         <h2>Add a new ticket</h2>
-        <button id="close-popup" class="close-button">x</button>
+        <button id="close-popup" aria-label="Close popup" class="close-button">x</button>
       </div>
       <div class="popup-body">
         <div class="form-group">
@@ -78,8 +78,20 @@
           <input type="url" id="veeva-pm-link" placeholder="Enter Ticket Name">
         </div>
         <div class="form-group manual-fields hidden">
+          <label for="veeva-pm-id">Veeva PM ID</label>
+          <input type="url" id="veeva-pm-id" placeholder="Enter Veeva PM ID">
+        </div>
+        <div class="form-group manual-fields hidden">
+          <label for="veeva-pm-name">Veeva PM Name</label>
+          <input type="url" id="veeva-pm-name" placeholder="Enter Ticket Name">
+        </div>
+        <div class="form-group manual-fields hidden">
           <label for="veeva-binder-link">Veeva Binder Link</label>
           <input type="url" id="veeva-binder-link" placeholder="Enter Ticket Name">
+        </div>
+        <div class="form-group manual-fields hidden">
+          <label for="veeva-binder-id">Veeva Binder MCP ID</label>
+          <input type="url" id="veeva-binder-id" placeholder="Enter Veeva Binder MCP ID">
         </div>
         <div class="form-group manual-fields hidden">
           <label for="folder-path">Ticket Folder</label>
@@ -102,9 +114,20 @@
     </div>
   </div>
   <div id="context-menu" class="context-menu">
+    <div class="context-menu-item" id="generate-message">
+      <span class="icon">📝</span>
+      <span>Generate Message</span>
+      <div class="submenu">
+        <div class="submenu-item">Send to QA</div>
+      </div>
+    </div>
     <div class="context-menu-item" id="edit-ticket">
       <span class="icon">✏️</span>
       <span>Edit</span>
+    </div>
+    <div class="context-menu-item" id="archive-ticket">
+      <span class="icon">📦</span>
+      <span id="archive-action-label">Archive</span>
     </div>
     <div class="context-menu-item" id="delete-ticket">
       <span class="icon">🗑️</span>
@@ -120,6 +143,10 @@
       <button class="carousel-arrow right">&#8594;</button>
     </div>
   </div>
+  <div id="toast-container" style="position: fixed; bottom: 24px; right: 24px; z-index: 9999;"></div>
+<div id="lexical-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); z-index:5000;">
+  <div id="lexical-root" style="background:#fff; margin:5% auto; padding:24px; width:80vw; min-height:60vh; border-radius:8px"></div>
+</div>
   <script src="renderer.js"></script>
 </body>
 
